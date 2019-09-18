@@ -1,0 +1,131 @@
+*{
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+header{
+    margin: 0;
+    width: 100%;
+    height: 20vh;
+    background-color: aliceblue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.algorithms_selector button{
+    /* border: none; */
+    background-color: #1dc0dd;
+    width: 80px;
+    height: 50px;
+    /* padding: 70px 50px; */
+}
+
+.container {
+    height: 80vh;
+    padding: 5px;
+}
+
+#grid {
+    height: 100%;
+}
+
+.row {
+    height:4.167%;
+    width: 100%;
+    display: flex;
+    margin: 0;
+    padding: 0; 
+}
+
+.row div:first-child{
+    border-left: 1px solid #1dc0dd;
+}
+
+#row_0 div {
+    border-top: 1px solid #1dc0dd;
+}
+
+.row div{
+    margin: 0;
+    width: 5%;
+}
+
+.row .unvisited,.source,.destination,.visited {
+    border-right:  1px solid #1dc0dd;
+    border-bottom: 1px solid #1dc0dd;
+}
+
+.row div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.source {
+    background-color: green;
+}
+
+.destination {
+    background-color: red;
+}
+
+.visited {
+    /* animation: visitedAnimation 2s ease-in-out forwards;   */
+    background-color: blue;
+}
+
+.shortestPathNode {
+    border-right:  1px solid rgb(0, 0, 0);
+    border-bottom: 1px solid rgb(0, 0, 0);
+    background-color: black;
+}
+
+
+
+.row .wall {
+    /* border: 1px solid rgb(102, 0, 102); */
+    border-right:  1px solid rgb(102, 0, 102);
+    border-bottom: 1px solid rgb(102, 0, 102);
+    animation-name: fill-wall-colour;
+    animation-duration: 0.2s;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fill-wall-colour{
+    0% {
+        background-color: rgb(102, 0, 102);
+        transform: scale(0.3);
+    }
+    50% {
+        background-color: rgb(102, 0, 102);
+        transform: scale(1.1);
+    }
+    100% {
+        background-color: rgb(102, 0, 102);
+        transform: scale(1);
+    }
+}
+
+/* @keyframes visitedAnimation{
+    0% {
+        background-color: green;
+    }
+
+    50% {
+        background-color: lightgreen;
+    }
+
+    75%{
+        background-color: blueviolet;
+    }
+
+    100% {
+        background-color: blueviolet;
+    }
+} */

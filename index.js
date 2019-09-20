@@ -1,186 +1,3 @@
-/*********************************************************************Version 0.1*************************************************************************************/
-// document.querySelector("#astar").addEventListener("click", algoAstarCaller);
-// document.querySelector("#dijkstra").addEventListener("click", algoDijkstraCaller);
-// var startX = 11;
-// var startY = 14;
-// var startID = `#cell_${startX}_${startY}`;
-// var endX = 11;
-// var endY = 44;
-// var endID = `#cell_${endX}_${endY}`;
-// function addWalls(e) {
-//     console.log(e);
-// }
-// /*********************************************************************************************************************/
-// class PriorityQueue {
-//     constructor() {
-//         this.collection = [];
-//     }
-//     enqueue(element) {
-//         if(this.isEmpty()) {
-//             this.collection.push(element);
-//         }
-//         else {
-//             let added = false;
-//             for(let i = 1; i <= this.collection.length; i++) {
-//                 if(element[1] < this.collection[i-1][1]) {
-//                     this.collection.splice(i-1, 0, element);
-//                     added = true;
-//                     break;
-//                 }
-//             }
-//             if(!added) {
-//                 this.collection.push(element);
-//             }
-//         }
-//     };
-//     dequeue() {
-//         let value = this.collection.shift();
-//         return value;
-//     };
-//     isEmpty() {
-//         return (this.collection.length === 0);
-//     }
-// }
-// class Graph {
-//     constructor(walls) {
-//         this.width = 60;
-//         this.height = 24;
-//         this.walls = walls; 
-//     }
-//     inBounds(x, y) {
-//         return ( (x >= 0 && x < this.height) && (y >= 0 && y < this.width) ); 
-//     }
-//     isPassable(x, y) {
-//         for(let i = 0; i < this.walls.length; i++) if(walls[i][0] == x && walls[i][1] == y) return false;
-//         return true;
-//     }
-//     getNeighbours(x, y) {
-//         var neighbours = [[x+1,y], [x,y-1], [x-1,y], [x,y+1]];
-//         neighbours = neighbours.filter(neighbour => this.inBounds(neighbour[0], neighbour[1]));
-//         //neighbours = neighbours.filter(neighbour => this.isPassable(neighbour[0], neighbour[1]));
-//         return neighbours;
-//     }
-// }
-// function Dijkstra(graph, start, end) {
-//     var prioQueue = new PriorityQueue();
-//     var came_from = new Map();
-//     var cost_so_far = new Map();
-//     came_from.set(start[0] + " " + start[1], null);
-//     cost_so_far.set(start[0] + " " + start[1], 0);
-//     prioQueue.enqueue([start[0] + " " + start[1], 0]);
-//     while(!prioQueue.isEmpty()) {
-//         var current = prioQueue.dequeue();
-//         var coord = current[0].split(" ");
-//         coord[0] = parseInt(coord[0]);
-//         coord[1] = parseInt(coord[1]);   
-//         let id = `#cell_${coord[0]}_${coord[1]}`;
-//         document.querySelector(id).className = "visited";
-//         if (coord[0] == end[0] && coord[1] == end[1]) {
-//             break;
-//         }
-//         var neighbours = graph.getNeighbours(coord[0], coord[1]);
-//         var neighbours = graph.getNeighbours(coord[0], coord[1]);
-//         neighbours.forEach(next => {
-//             let new_cost = cost_so_far.get(current[0]) + 1;
-//             let c = next[0] + " " + next[1];
-//             if ( cost_so_far.has(c) === false ||  new_cost < cost_so_far.get(c)) {
-//                 cost_so_far.set(c, new_cost);
-//                 let priority = new_cost;
-//                 prioQueue.enqueue([c, priority]);
-//                 came_from.set(c, coord);
-//             }
-//         });
-//     }
-// }
-// function potentialFunction(a, b) {
-//     var potential =  Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
-//     return potential;
-// }
-// function Astar(graph, start, end) {
-//     var prioQueue = new PriorityQueue();
-//     var came_from = new Map();
-//     var cost_so_far = new Map();
-//     came_from.set(start[0] + " " + start[1], null);
-//     cost_so_far.set(start[0] + " " + start[1], 0);
-//     prioQueue.enqueue([start[0] + " " + start[1], 0]);
-//     while(!prioQueue.isEmpty()) {
-//         var current = prioQueue.dequeue();
-//         var coord = current[0].split(" ");
-//         coord[0] = parseInt(coord[0]);
-//         coord[1] = parseInt(coord[1]);        
-//         var id = `#cell_${coord[0]}_${coord[1]}`;
-//         document.querySelector(id).className = "visited";
-//         if (coord[0] == end[0] && coord[1] == end[1]) {
-//             break;
-//         }
-//         var neighbours = graph.getNeighbours(coord[0], coord[1]);
-//         neighbours.forEach(next => {
-//             let new_cost = cost_so_far.get(current[0]) + 1;
-//             let c = next[0] + " " + next[1];
-//             if ( cost_so_far.has(c) === false ||  new_cost < cost_so_far.get(c)) {
-//                 cost_so_far.set(c, new_cost);
-//                 let priority = new_cost + potentialFunction(end, next);
-//                 prioQueue.enqueue([c, priority]);
-//                 came_from.set(c, current);
-//             }
-//         });
-//     }
-// }
-// /************************************************************************************************************************************/
-// function algoAstarCaller() {
-//     var c = document.getElementsByClassName("visited");
-//     var len = c.length;
-//     for(var i = 0; i < len; i++) document.querySelector(`#${c[0].id}`).className="unvisited";
-//     var start = document.querySelector(startID);
-//     start.className = "start";
-//     var end = document.querySelector(endID);
-//     end.className = "end";
-//     var source = document.querySelector('.start');
-//     var terminate = document.querySelector('.end');
-//     var x1,y1,x2,y2;
-//     x1 = source.id.substring(5, 7);
-//     y1 = source.id.substring(8);
-//     x2 = terminate.id.substring(5, 7);
-//     y2 = terminate.id.substring(8);
-//     var graph = new Graph([]);
-//     var a = [x1, y1];
-//     var b = [x2, y2];
-//     Astar(graph, a, b);
-// }
-// function algoDijkstraCaller() {
-//     var c = document.getElementsByClassName("visited");
-//     var len = c.length;
-//     for(var i = 0; i < len; i++) document.querySelector(`#${c[0].id}`).className="unvisited";
-//     var start = document.querySelector(startID);
-//     start.className = "start";
-//     var end = document.querySelector(endID);
-//     end.className = "end";   
-//     var source = document.querySelector('.start');
-//     var terminate = document.querySelector('.end');
-//     var x1,y1,x2,y2;
-//     x1 = source.id.substring(5, 7);
-//     y1 = source.id.substring(8);
-//     x2 = terminate.id.substring(5, 7);
-//     y2 = terminate.id.substring(8);
-//     var graph = new Graph([]);
-//     var a = [x1, y1];
-//     var b = [x2, y2];
-//     Dijkstra(graph, a, b);
-// }
-// function init() {
-//     var start = document.querySelector(startID);
-//     start.className = "start";
-//     var startIcon = document.createElement("i");
-//     startIcon.className = "fas fa-chevron-right";
-//     start.appendChild(startIcon);
-//     var end = document.querySelector(endID);
-//     end.className = "end";
-//     var endIcon = document.createElement("i");
-//     endIcon.className = "fas fa-bullseye";
-//     end.appendChild(endIcon);
-// }
-// init();
-/******************************************************************Version 0.2**************************************************************************************/
 class Grid {
     constructor(width, height) {
         this.width = width;
@@ -301,13 +118,13 @@ class Grid {
 
     changeTerminalNodes(currentNode) {
         let element = document.getElementById(currentNode.id), previousElement;
+
         if (this.previouslySwitchedNode)
             previousElement = document.getElementById(this.previouslySwitchedNode.id);
 
         if (currentNode.status !== "source" && currentNode.status !== "destination") {
             if(this.previouslySwitchedNode)
             {
-                console.log(previousElement);
                 this.previouslySwitchedNode.status = this.previouslyPressedNodeStatus;
                 previousElement.className = this.previouslyPressedNodeStatus;
                 this.previouslySwitchedNode = null;
@@ -324,7 +141,7 @@ class Grid {
 
         else {
             this.previouslySwitchedNode = currentNode;
-            element.className = !this.previouslyPressedNodeStatus ? "unvisited" : this.previouslyPressedNodeStatus;
+            element.className =  this.previouslyPressedNodeStatus;
             currentNode.status = this.previouslyPressedNodeStatus;
         }
     }
@@ -360,57 +177,83 @@ class Grid {
         return neighbours;
     }
 
+    resetGrid () {
+        let len;
+        len = this.visitedNodes.length;
+        for(let i = 0; i < len; i++)
+        {
+            let currentId = this.visitedNodes[this.visitedNodes.length -  1];
+            if(this.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
+            this.visitedNodes.pop();
+        }
+        
+        len = this.shortestPathNodes.length;
+        for(let i = 0; i < len; i++)
+        {
+            let currentId = this.shortestPathNodes[this.shortestPathNodes.length - 1];
+            this.getNode(currentId).previousNode = null;
+            if(this.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
+            this.shortestPathNodes.pop();
+        }
+
+        this.clearWalls();
+    }
+
+    clearPath() {
+        let len;
+        
+        len = this.visitedNodes.length;
+        for(let i = 0; i < len; i++)
+        {
+            let currentId = this.visitedNodes[this.visitedNodes.length -  1];
+            if(this.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
+            this.visitedNodes.pop();
+        }
+        
+        len = this.shortestPathNodes.length;
+        for(let i = 0; i < len; i++)
+        {
+            let currentId = this.shortestPathNodes[this.shortestPathNodes.length - 1];
+            console.log(this.getNode(currentId).status);
+            if(this.getNode(currentId).status !== "wall")  document.getElementById(currentId).className = "unvisited";
+            this.shortestPathNodes.pop();
+        }
+
+        Object.keys(this.nodes).forEach(node => {
+            if(this.nodes[node].status === "visited") this.nodes[node].status = "unvisited";
+            this.nodes[node].previousNode = null;
+        });
+    }
+
     redoAlgorithm () {
-        this.clearVisitedNodes();
-        this.clearShortestPath();
+        this.clearPath();
+        this.algoDone = false;
         this.instantAlgorithm();
     }
 
     instantAlgorithm() {
+        document.getElementById(this.source).className = "source";
+        document.getElementById(this.destination).className = "destination";
         if(this.algorithmName === "Astar")
         {
             astar(this.source, this.destination, this);
             getShortestPath(this);
-            drawVisitedNodes(this);
-            drawShortestPath(this);
+            launchInstantAnimations(this);
+            this.algoDone = true;
         }
         else if(this.algorithmName === "Dijkstra")
         {
             Dijkstra(this, this.source);
             getShortestPath(this);
-            drawVisitedNodes(this);
-            drawShortestPath(this);
-        }
-    }
-
-    clearVisitedNodes() {
-        let Grid = this;
-        let len = Grid.visitedNodes.length;
-        for(let i = 0; i < len; i++)
-        {
-            let currentId = Grid.visitedNodes[Grid.visitedNodes.length -  1];
-            if(Grid.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
-            Grid.visitedNodes.pop();
-        }
-    }
-    
-    clearShortestPath() {
-        let Grid = this;
-        let len = Grid.shortestPathNodes.length;
-        for(let i = 0; i < len; i++)
-        {
-            let currentId = Grid.shortestPathNodes[Grid.shortestPathNodes.length - 1];
-            Grid.getNode(currentId).previousNode = null;
-            if(Grid.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
-            Grid.shortestPathNodes.pop();
+            launchInstantAnimations(this);
+            this.algoDone = true;
         }
     }
     
     clearWalls() {
-        let Grid = this;
-        let nodeIds = Object.keys(Grid.nodes);
+        let nodeIds = Object.keys(this.nodes);
         nodeIds.forEach(nodeId => {
-            let node = Grid.getNode(nodeId);
+            let node = this.getNode(nodeId);
             if(node.status === "wall")
             {
                 document.getElementById(nodeId).className = "unvisited";
@@ -546,7 +389,7 @@ function ManhattanDistance(nodeId, target) {
 
     let potential = Math.abs(x1 - x2) + Math.abs(y1 - y2);
 
-    return Math.pow(potential, 7); 
+    return Math.pow(potential,1); 
 };
 
 function astar (start, target, Grid) {
@@ -606,6 +449,54 @@ function Dijkstra(Grid, start) {
     }
 }
 
+/* *********************************************************************Intialization*********************************************************************** */
+
+let width = 63;
+let height = 24;
+let newGrid = new Grid(width, height);
+newGrid.intialise();
+
+document.querySelector("#astar").addEventListener("click", algoAstarCaller);
+document.querySelector("#dijkstra").addEventListener("click", algoDijkstraCaller);
+document.querySelector("#clear_path").addEventListener("click", function() {
+    newGrid.clearPath();
+    newGrid.algoDone = false;
+});
+document.querySelector("#clear_walls").addEventListener("click", function() {
+    newGrid.clearWalls();
+    newGrid.algoDone = false;
+});
+document.querySelector("#reset_grid").addEventListener("click", function() {
+    newGrid.resetGrid();
+    newGrid.algoDone = false;
+});
+
+function algoAstarCaller() {
+    newGrid.algorithmName = "Astar";
+    newGrid.clearPath();
+    newGrid.algoDone = false;
+
+    astar(newGrid.source, newGrid.destination, newGrid);
+    
+    newGrid.algoDone = true;
+    getShortestPath(newGrid);
+    launchAnimations(0, newGrid);
+}
+
+function algoDijkstraCaller() {
+    newGrid.algorithmName = "Dijkstra";
+    newGrid.clearPath();
+    newGrid.algoDone = false;
+
+    Dijkstra(newGrid, newGrid.source);
+    
+    newGrid.algoDone = true;
+    getShortestPath(newGrid);
+    launchAnimations(0, newGrid);
+}
+
+/* *********************************************************************Launch Animations************************************************************************* */
+
 function getShortestPath(Grid) {
     let previous = Grid.getNode(Grid.destination).previousNode;
     Grid.getNode(Grid.destination).previousNode = null;
@@ -617,66 +508,48 @@ function getShortestPath(Grid) {
     }
 }
 
-function drawVisitedNodes(Grid) {
-    document.getElementById(Grid.source).className = "source";
-    document.getElementById(Grid.destination).className = "destination";
-    for(let i = 0; i < Grid.visitedNodes.length; i++)
+function launchAnimations (index, Grid) {
+    let speed = 0;
+    Grid.shortestPathNodes.reverse(); 
+    drawVisited(index);
+
+    function drawVisited(index) {
+        setTimeout( function () {
+            if(index === Grid.visitedNodes.length) 
+            { 
+                setTimeout(() => drawShortestPath(0), 1200);
+                return;
+            }
+            let currentNodeID = Grid.visitedNodes[index];
+            let ele = document.getElementById(currentNodeID);
+            ele.className = "visited";
+            drawVisited(index + 1);
+        }, speed);
+    }
+
+    function drawShortestPath(index) {
+        setTimeout( function() {
+            if (index === Grid.shortestPathNodes.length) return;
+            let currentID = Grid.shortestPathNodes[index];
+            document.getElementById(currentID).className = "shortestPathNode";
+            drawShortestPath(index + 1);
+        }, 40);
+    }
+}
+
+function launchInstantAnimations (Grid) {
+    let len;
+    len = Grid.visitedNodes.length;
+    for(let i = 0; i < len; i++)
     {
         let currentNodeID = Grid.visitedNodes[i];
-        if(Grid.source === currentNodeID || Grid.destination === currentNodeID) continue;
-        document.getElementById(currentNodeID).className = "visited";
+        document.getElementById(currentNodeID).className = "visitedInstant";
     }
-}
 
-function drawShortestPath(Grid) {
-    for(let i = 0; i < Grid.shortestPathNodes.length; i++)
+    len = Grid.shortestPathNodes.length;
+    for(let i = 0; i < len; i++)
     {
-        let currentID = Grid.shortestPathNodes[i];
-        document.getElementById(currentID).className = "shortestPathNode";
+        let currentNodeID = Grid.shortestPathNodes[i];
+        document.getElementById(currentNodeID).className = "shortestPathNodeInstant";
     }
-}
-
-/* *********************************************************************Intialization*********************************************************************** */
-
-let width = 63;
-let height = 24;
-let newGrid = new Grid(width, height);
-newGrid.intialise();
-
-document.querySelector("#astar").addEventListener("click", algoAstarCaller);
-document.querySelector("#dijkstra").addEventListener("click", algoDijkstraCaller);
-document.querySelector("#clear_grid").addEventListener("click", function() {
-    newGrid.clearShortestPath();
-    newGrid.clearVisitedNodes();
-    newGrid.clearWalls();
-    newGrid.clearNodeStatuses();
-    newGrid.algoDone = false;
-});
-
-function algoAstarCaller() {
-    newGrid.algorithmName = "Astar";
-    newGrid.clearShortestPath();
-    newGrid.clearVisitedNodes();
-    newGrid.algoDone = false;
-
-    astar(newGrid.source, newGrid.destination, newGrid);
-    
-    newGrid.algoDone = true;
-    getShortestPath(newGrid);
-    drawVisitedNodes(newGrid);
-    drawShortestPath(newGrid);
-}
-
-function algoDijkstraCaller() {
-    newGrid.algorithmName = "Dijkstra";
-    newGrid.clearShortestPath();
-    newGrid.clearVisitedNodes();
-    newGrid.algoDone = false;
-
-    Dijkstra(newGrid, newGrid.source);
-    
-    newGrid.algoDone = true;
-    getShortestPath(newGrid);
-    drawVisitedNodes(newGrid);
-    drawShortestPath(newGrid);
 }

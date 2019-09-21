@@ -1,24 +1,66 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title></title>
-        <link rel="stylesheet" href="style.css" />
-        <!-- <script src="https://kit.fontawesome.com/226584a37d.js"></script> -->
+        <title>Search Algorithm Visualiser</title>
+        <link rel="stylesheet" href="./style/style.css" />
+        <script src="https://kit.fontawesome.com/226584a37d.js"></script>
     </head>
     <body>
         <header class="header">
+            <div class="name"> <h1>Search Algorithm Visualiser</h1> </div>
             <div class="algorithms_selector">
-                <button id="astar">A*</button>
-                <button id="dijkstra">Dijkstra</button>
-                <button id="clear_path">Clear Path</button>
-                <button id="clear_walls">Clear Walls</button>
-                <button id="reset_grid">Reset Grid</button>
+                <button class="dropbtn" onclick="dropdown()">
+                    Select Algorithm
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content" id="dropdown">
+                    <ul id="algo_list">
+                        <li id="astar">A*</li>
+                        <li id="dijkstra">Dijkstra</li>
+                        <li id="greedy">Greedy First Search</li>
+                        <li id="dfs">Depth First Search</li>
+                        <li id="bfs">Breadth First Search</li>
+                    </ul>
+                </div>
             </div>
+            <div><button id="startBtn">Visualize</button></div>
+            <div><button id="clear_path">Clear Path</button></div>
+            <div><button id="clear_walls">Clear Walls</button></div>
+            <div><button id="reset_grid">Reset Grid</button></div>
         </header>
+        
+        <section class="info_section">
+            <div class="info">
+                <div class="cell cell_unvisited"></div>
+                <h3>Unvisited</h3>
+            </div>
+            <div class="info">
+                <div class="cell cell_visited"></div>
+                <h3>Visited</h3>
+            </div>
+            <div class="info">
+                <div class="cell cell_wall"></div>
+                <h3>Wall</h3>
+            </div>
+            <div class="info">
+                <div class="cell cell_path"></div>
+                <h3>Path</h3>
+            </div>
+            <div class="info">
+                <div class="cell cell_source"></div>
+                <h3>Source</h3>
+            </div>
+            <div class="info">
+                <div class="cell cell_destination"></div>
+                <h3>Destination</h3>
+            </div>
+        </section>
+
         <div class="container">
             <div id="grid">
             </div>
         </div>
     </body>
-    <script src="index.js"></script>
+    <script src="./js/index.js"></script>
+    <script src="./js/dropDown.js"></script>
 </html>

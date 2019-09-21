@@ -249,12 +249,12 @@ button:hover {
 @keyframes shortestPathAnimation{
     0% {
         background-color: yellow;
-        transform: scale(0.9);
+        transform: scale(0.3);
     }
 
     50% {
         background-color: yellow;
-        transform: scale(1);
+        transform: scale(0.8);
     }
 
     75%{

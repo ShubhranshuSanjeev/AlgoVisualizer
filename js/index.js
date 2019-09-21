@@ -176,7 +176,7 @@ class Grid {
     getNeighbours(nodeId) {
         let coord = nodeId.split("_");
         let r = parseInt(coord[1]), c = parseInt(coord[2]);
-        var neighbours = [[r,c+1], [r+1,c], [r,c-1], [r-1,c]];
+        var neighbours = [[r-1,c], [r,c+1], [r+1,c], [r,c-1]];
         
         neighbours = neighbours.filter(neighbour => this.inBounds(neighbour[0], neighbour[1]));
         neighbours = neighbours.filter(neighbour => this.isPassable(neighbour[0], neighbour[1]));
@@ -184,7 +184,7 @@ class Grid {
         for(let i = 0; i < neighbours.length; i++)
             neighbours[i] = `cell_${neighbours[i][0]}_${neighbours[i][1]}`;
 
-        return neighbours;
+        return neighbours.reverse();
     }
 
     resetGrid () {
@@ -224,7 +224,6 @@ class Grid {
         for(let i = 0; i < len; i++)
         {
             let currentId = this.shortestPathNodes[this.shortestPathNodes.length - 1];
-            console.log(this.getNode(currentId).status);
             if(this.getNode(currentId).status !== "wall")  document.getElementById(currentId).className = "unvisited";
             this.shortestPathNodes.pop();
         }
@@ -244,20 +243,19 @@ class Grid {
     instantAlgorithm() {
         document.getElementById(this.source).className = "source";
         document.getElementById(this.destination).className = "destination";
+
         if(this.algorithmName === "Astar")
-        {
             astar(this.source, this.destination, this);
-            getShortestPath(this);
-            launchInstantAnimations(this);
-            this.algoDone = true;
-        }
         else if(this.algorithmName === "Dijkstra")
-        {
             Dijkstra(this, this.source);
-            getShortestPath(this);
-            launchInstantAnimations(this);
-            this.algoDone = true;
-        }
+        else if(this.algorithmName === "Dfs")
+            dfs(this, this.source);
+        else if(this.algorithmName === "Bfs")
+            bfs(this, this.source);
+        
+        getShortestPath(this);
+        launchInstantAnimations(this);
+        this.algoDone = true;
     }
     
     clearWalls() {
@@ -459,6 +457,59 @@ function Dijkstra(Grid, start) {
     }
 }
 
+function dfs(Grid, start) {
+    let stack = [start];
+    let exploredNodes = new Map();
+    exploredNodes.set(start, true);
+    
+    while (stack.length)
+    {
+        let currentNode = stack.pop();
+        exploredNodes.set(currentNode, true);
+        
+        if (currentNode === Grid.destination) return;
+
+        if(currentNode !== start)
+            Grid.visitedNodes.push(currentNode);
+
+        let neighbours = Grid.getNeighbours(currentNode);
+        
+        neighbours.forEach(neighbour => {
+            if (!exploredNodes.get(neighbour)) {
+                Grid.getNode(neighbour).previousNode = Grid.getNode(currentNode);
+                stack.push(neighbour);
+            }
+        });
+    }
+}
+
+function bfs(Grid, start)
+{
+    let queue = [start];
+    let exploredNodes = new Map();
+    exploredNodes.set(start, true);
+    
+    while (queue.length)
+    {
+        let currentNode = queue.shift();
+
+        if (currentNode === Grid.destination) return;
+
+        if(currentNode !== start)
+            Grid.visitedNodes.push(currentNode);
+
+        let neighbours = Grid.getNeighbours(currentNode);
+        
+        neighbours.forEach(neighbour => {
+            if (!exploredNodes.get(neighbour)) {
+                exploredNodes.set(neighbour, true);
+                Grid.getNode(neighbour).previousNode = Grid.getNode(currentNode);
+                queue.push(neighbour);
+            }
+        });
+    }
+}
+
 /* *********************************************************************Launch Animations************************************************************************* */
 
 function getShortestPath(Grid) {
@@ -466,7 +517,7 @@ function getShortestPath(Grid) {
     Grid.getNode(Grid.destination).previousNode = null;
     if(previous === null) return;
     while(previous.status !== "source")
-    {
+    { 
         Grid.shortestPathNodes.push(previous.id);
         previous = previous.previousNode;
     }
@@ -530,49 +581,66 @@ let height = 25;
 let newGrid = new Grid(width, height);
 newGrid.intialise();
 
-document.querySelector("#astar").addEventListener("click", () => {
+document.getElementById("astar").addEventListener("click", () => {
     newGrid.algorithmName = "Astar";
     newGrid.algoDone = false;
-    document.querySelector("#startBtn").innerHTML = "Visualize Astar";
+    document.getElementById("startBtn").innerHTML = "Visualize Astar";
 });
 
-document.querySelector("#dijkstra").addEventListener("click", () => {
+document.getElementById("dijkstra").addEventListener("click", () => {
     newGrid.algorithmName = "Dijkstra"; 
     newGrid.algoDone = false;
-    document.querySelector("#startBtn").innerHTML = "Visualize Dijkstra";
+    document.getElementById("startBtn").innerHTML = "Visualize Dijkstra";
 });
 
-document.querySelector("#startBtn").addEventListener("click", startVisualization);
+document.getElementById("dfs").addEventListener("click", () => {
+    newGrid.algorithmName = "Dfs";
+    newGrid.algoDone = false;
+    document.getElementById("startBtn").innerHTML = "Visualize Depth First Search";
+});
 
-document.querySelector("#clear_path").addEventListener("click", function() {
+document.getElementById("bfs").addEventListener("click", () => {
+    newGrid.algorithmName = "Bfs";
+    newGrid.algoDone = false;
+    document.getElementById("startBtn").innerHTML = "Visualize Breadth First Search";
+});
+
+document.getElementById("startBtn").addEventListener("click", startVisualization);
+
+document.getElementById("clear_path").addEventListener("click", function() {
     newGrid.clearPath();
     newGrid.algoDone = false;
 });
-document.querySelector("#clear_walls").addEventListener("click", function() {
+document.getElementById("clear_walls").addEventListener("click", function() {
     newGrid.clearWalls();
     newGrid.algoDone = false;
 });
-document.querySelector("#reset_grid").addEventListener("click", function() {
+document.getElementById("reset_grid").addEventListener("click", function() {
     newGrid.resetGrid();
     newGrid.algoDone = false;
 });
 
 function startVisualization () {
-    if(newGrid.algorithmName === null)
+    if(newGrid.buttonsOn)
     {
-        document.querySelector("#startBtn").innerHTML = "Select an Algorithm"; 
-    }
-    else
-    {
-        newGrid.buttonsOn = false;
-        newGrid.clearPath();
-        if(newGrid.algorithmName === "Astar")
-            astar(newGrid.source, newGrid.destination, newGrid);
-        else if(newGrid.algorithmName === "Dijkstra")
-            Dijkstra(newGrid, newGrid.source);
-
-        getShortestPath(newGrid);
-        launchAnimations(0, newGrid);
-        console.log(newGrid.buttonsOn);
+        if(newGrid.algorithmName === null)
+        {
+            document.getElementById("startBtn").innerHTML = "Select an Algorithm"; 
+        }
+        else
+        {
+            newGrid.buttonsOn = false;
+            newGrid.clearPath();
+            if(newGrid.algorithmName === "Astar")
+                astar(newGrid.source, newGrid.destination, newGrid);
+            else if(newGrid.algorithmName === "Dijkstra")
+                Dijkstra(newGrid, newGrid.source);
+            else if(newGrid.algorithmName === "Dfs")
+                dfs(newGrid, newGrid.source);
+            else if(newGrid.algorithmName === "Bfs")
+                bfs(newGrid, newGrid.source);
+            getShortestPath(newGrid);
+            launchAnimations(0, newGrid);
+        }
     }
 }

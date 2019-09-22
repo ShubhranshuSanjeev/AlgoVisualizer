@@ -678,7 +678,7 @@ function drawMaze(Grid) {
             if(index === len) return;
             if(Grid.nodes[Grid.wallsToBuild[index]].status === "wall") document.getElementById(Grid.wallsToBuild[index]).className = "wall";
             timeout(index + 1);
-        }, 100);
+        }, 0);
     }
 }
 

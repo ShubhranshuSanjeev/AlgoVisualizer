@@ -16,7 +16,14 @@ header{
     background-color: #400040;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+}
+
+.wrapper {
+    display: flex;
+    align-items: center;
     justify-content: space-around;
+    width:50%; 
 }
 
 header h1 {

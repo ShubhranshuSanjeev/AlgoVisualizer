@@ -7,26 +7,31 @@
     </head>
     <body>
         <header class="header">
-            <div class="name"> <h1>Search Algorithm Visualizer</h1> </div>
-            <div class="algorithms_selector">
-                <button class="dropbtn" onclick="dropdown()">
-                    Select Algorithm
-                    <i class="fa fa-caret-down"></i>
-                </button>
-                <div class="dropdown-content" id="dropdown">
-                    <ul id="algo_list">
-                        <li id="astar">A*</li>
-                        <li id="dijkstra">Dijkstra</li>
-                        <li id="greedy">Greedy First Search</li>
-                        <li id="dfs">Depth First Search</li>
-                        <li id="bfs">Breadth First Search</li>
-                    </ul>
+            <div class="wrapper left-wrapper">
+                <div class="name"> <h1>Search Algorithm Visualizer</h1> </div>
+                <div class="algorithms_selector">
+                    <button class="dropbtn" onclick="dropdown()">
+                        Select Algorithm
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="dropdown">
+                        <ul id="algo_list">
+                            <li id="astar">A*</li>
+                            <li id="dijkstra">Dijkstra</li>
+                            <li id="greedy">Greedy First Search</li>
+                            <li id="dfs">Depth First Search</li>
+                            <li id="bfs">Breadth First Search</li>
+                        </ul>
+                    </div>
                 </div>
+                <div><button id="create_maze">Create Maze</button></div>
             </div>
             <div><button id="startBtn">Visualize</button></div>
-            <div><button id="clear_path">Clear Path</button></div>
-            <div><button id="clear_walls">Clear Walls</button></div>
-            <div><button id="reset_grid">Reset Grid</button></div>
+            <div class="wrapper right-wrapper">
+                <div><button id="clear_path">Clear Path</button></div>
+                <div><button id="clear_walls">Clear Walls</button></div>
+                <div><button id="reset_grid">Reset Grid</button></div>
+            </div>
         </header>
         
         <section class="info_section">

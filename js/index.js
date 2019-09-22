@@ -8,6 +8,7 @@ class Grid {
         this.nodes = {};
         this.visitedNodes = [];
         this.shortestPathNodes = [];
+        this.wallsToBuild = [];
         this.buttonsOn = false;
         this.mouseDown = false;
         this.pressedNodeStatus = "normal";
@@ -16,6 +17,7 @@ class Grid {
         this.algoDone = false;
         this.algorithmName = null;
         this.buttonsOn = true;
+        this.borderWalls = false;
     }
 
     intialise() {
@@ -193,6 +195,7 @@ class Grid {
     resetGrid () {
         this.shortestPathNodes = [];
         this.visitedNodes = [];
+        this.wallsToBuild = [];
 
         Object.keys(this.nodes).forEach(node => {
             if(this.nodes[node].status === "visited") 
@@ -505,6 +508,103 @@ function bfs(Grid, start)
         });
     }
 }
+/* ***************************************************************************Maze**************************************************************************** */
+
+function recursiveDivisionMaze (Grid, nodes, rowStart, rowEnd, colStart, colEnd, orientation, borderWalls) {
+    if (rowEnd < rowStart || colEnd < colStart) return;
+
+    if(!borderWalls)
+    {
+        Object.keys(nodes).forEach(node => {
+            if(nodes[node].status !== "source" || nodes[node].status !== "destination")
+            {
+                let r = parseInt(node.split("_")[1]);
+                let c = parseInt(node.split("_")[2]);
+
+                if(r === 0 || c === 0 || r === Grid.height-1 || c === Grid.width-1)
+                {
+                    Grid.wallsToBuild.push(node); 
+                    nodes[node].status = "wall";
+                }
+            }
+        });
+        borderWalls = true;
+    }
+
+    if (orientation === "horizontal") 
+    {
+        let possibleRows = [];
+        for (let i = rowStart; i <= rowEnd; i += 2) {
+          possibleRows.push(i);
+        }
+
+        let possibleCols = [];
+        for (let i = colStart - 1; i <= colEnd + 1; i += 2) {
+          possibleCols.push(i);
+        }
+        
+        let randIndexR = Math.floor(Math.random() * possibleRows.length);
+        let randIndexC = Math.floor(Math.random() * possibleCols.length);
+        let wallRow = possibleRows[randIndexR];
+        let wallCol = possibleCols[randIndexC];
+
+        Object.keys(nodes).forEach(node => {
+            let r = parseInt(node.split("_")[1]);
+            let c = parseInt(node.split("_")[2]);
+            if (r === wallRow && c !== wallCol && c >= colStart - 1 && c <= colEnd + 1) {
+                if (nodes[node].status !== "source" && nodes[node].status !== "destination") {
+                    Grid.wallsToBuild.push(node);
+                    nodes[node].status = "wall";
+                }
+            } 
+        });
+
+        if (wallRow - 2 - rowStart > colEnd - colStart) 
+            recursiveDivisionMaze(Grid, nodes, rowStart, wallRow - 2, colStart, colEnd, orientation, borderWalls);
+        else 
+            recursiveDivisionMaze(Grid, nodes, rowStart, wallRow - 2, colStart, colEnd, "vertical", borderWalls);
+
+        if (rowEnd - (wallRow + 2) > colEnd - colStart) 
+            recursiveDivisionMaze(Grid, nodes, wallRow + 2, rowEnd, colStart, colEnd, orientation, borderWalls);
+        else 
+            recursiveDivisionMaze(Grid, nodes, wallRow + 2, rowEnd, colStart, colEnd, "vertical", borderWalls);
+    } 
+    else 
+    {
+        let possibleCols = [];
+        for (let i = colStart; i <= colEnd; i += 2)
+            possibleCols.push(i);
+
+        let possibleRows = [];
+        for (let i = rowStart - 1; i <= rowEnd + 1; i += 2)
+            possibleRows.push(i);
+
+        let randIndexR = Math.floor(Math.random() * possibleRows.length);
+        let randIndexC = Math.floor(Math.random() * possibleCols.length);
+        let wallRow = possibleRows[randIndexR];
+        let wallCol = possibleCols[randIndexC];
+
+        Object.keys(nodes).forEach(node => {
+            let r = parseInt(node.split("_")[1]);
+            let c = parseInt(node.split("_")[2]);
+            if (c === wallCol && r !== wallRow && r >= rowStart - 1 && r <= rowEnd + 1) {
+                if (nodes[node].status !== "source" && nodes[node].status !== "destination") {
+                    Grid.wallsToBuild.push(node);
+                    nodes[node].status = "wall";
+                }  
+            } 
+        });
+        if (rowEnd - rowStart > wallCol - 2 - colStart)
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, colStart, wallCol - 2, "horizontal", borderWalls);
+        else
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, colStart, wallCol - 2, orientation, borderWalls);
+
+        if (rowEnd - rowStart > colEnd - (wallCol + 2))
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, wallCol + 2, colEnd, "horizontal", borderWalls);
+        else
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, wallCol + 2, colEnd, orientation, borderWalls);
+    }
+}
 
 /* *********************************************************************Launch Animations************************************************************************* */
 
@@ -570,6 +670,18 @@ function launchInstantAnimations (Grid) {
     }
 }
 
+function drawMaze(Grid) {
+    let len = Grid.wallsToBuild.length;
+    timeout(0);
+    function timeout(index) {
+        setTimeout(function() {
+            if(index === len) return;
+            if(Grid.nodes[Grid.wallsToBuild[index]].status === "wall") document.getElementById(Grid.wallsToBuild[index]).className = "wall";
+            timeout(index + 1);
+        }, 100);
+    }
+}
+
 /* *********************************************************************Intialization*********************************************************************** */
 
 let width = 63;
@@ -603,6 +715,15 @@ document.getElementById("bfs").addEventListener("click", () => {
 
 document.getElementById("startBtn").addEventListener("click", startVisualization);
 
+document.getElementById("create_maze").addEventListener("click", () => {
+    if(newGrid.buttonsOn)
+    {
+        newGrid.resetGrid();
+        recursiveDivisionMaze(newGrid, newGrid.nodes, 2, newGrid.height-3, 2, newGrid.width-3, "horizontal", newGrid.borderWalls);
+        drawMaze(newGrid);
+    }
+});
+
 document.getElementById("clear_path").addEventListener("click", function() {
     if(newGrid.buttonsOn)
     {
@@ -632,12 +753,13 @@ function startVisualization () {
     {
         if(newGrid.algorithmName === null)
         {
-            document.getElementById("startBtn").innerHTML = "Select an Algorithm"; 
+            document.getElementById("startBtn").innerHTML = "Select an Algorithm";
         }
         else
         {
             newGrid.buttonsOn = false;
             newGrid.clearPath();
+            
             if(newGrid.algorithmName === "Astar")
                 astar(newGrid.source, newGrid.destination, newGrid);
             else if(newGrid.algorithmName === "Dijkstra")
@@ -646,6 +768,7 @@ function startVisualization () {
                 dfs(newGrid, newGrid.source);
             else if(newGrid.algorithmName === "Bfs")
                 bfs(newGrid, newGrid.source);
+
             getShortestPath(newGrid);
             launchAnimations(0, newGrid);
         }

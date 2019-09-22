@@ -1,1 +1,1 @@
-# SearchAlgoVisualiser
+# SearchAlgoVisualizer

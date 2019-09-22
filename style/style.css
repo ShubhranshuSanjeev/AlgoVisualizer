@@ -172,20 +172,6 @@ button:hover {
     background-color: rgb(255, 255, 0);
 }
 
-/* .source_shortest_path {
-    background: url(./triangletwo-right.svg), rgb(255, 255, 0);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-}
-
-.desti_shortest_path {
-    background: url(./circle.svg), rgb(255, 255, 0);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-} */
-
 .visitedInstant {
     background-color: rgba(51, 153, 255, 0.75);
     border-right:  1px solid rgba(51, 153, 255, 0.8);

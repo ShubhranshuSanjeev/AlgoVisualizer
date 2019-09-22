@@ -118,8 +118,10 @@ class Grid {
                 };
 
                 currentElement.onmouseleave = () => {
-                    if (grid.mouseDown && (grid.pressedNodeStatus === "source" || grid.pressedNodeStatus === "destination")) {
-                        grid.changeTerminalNodes(currentNode);
+                    if(this.buttonsOn) {
+                        if (grid.mouseDown && (grid.pressedNodeStatus === "source" || grid.pressedNodeStatus === "destination")) {
+                            grid.changeTerminalNodes(currentNode);
+                        }
                     }
                 };
             }
@@ -136,11 +138,11 @@ class Grid {
             if(this.previouslySwitchedNode)
             {
                 this.previouslySwitchedNode.status = this.previouslyPressedNodeStatus;
-                previousElement.className = this.previouslyPressedNodeStatus;
+                previousElement.className = this.previouslyPressedNodeStatus === "visited" ? "unvisited" : this.previouslyPressedNodeStatus;
                 this.previouslySwitchedNode = null;
                 this.previouslyPressedNodeStatus = currentNode.status;
-                element.className = this.pressedNodeStatus;
                 currentNode.status = this.pressedNodeStatus;
+                element.className = currentNode.status;
             }
         }
 
@@ -149,10 +151,11 @@ class Grid {
             previousElement.className = this.pressedNodeStatus;
         } 
 
-        else {
+        else if (currentNode.status === this.pressedNodeStatus) 
+        {
             this.previouslySwitchedNode = currentNode;
-            element.className =  this.previouslyPressedNodeStatus;
             currentNode.status = this.previouslyPressedNodeStatus;
+            element.className =  this.previouslyPressedNodeStatus;
         }
     }
 
@@ -188,48 +191,31 @@ class Grid {
     }
 
     resetGrid () {
-        let len;
-        len = this.visitedNodes.length;
-        for(let i = 0; i < len; i++)
-        {
-            let currentId = this.visitedNodes[this.visitedNodes.length -  1];
-            if(this.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
-            this.visitedNodes.pop();
-        }
-        
-        len = this.shortestPathNodes.length;
-        for(let i = 0; i < len; i++)
-        {
-            let currentId = this.shortestPathNodes[this.shortestPathNodes.length - 1];
-            this.getNode(currentId).previousNode = null;
-            if(this.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
-            this.shortestPathNodes.pop();
-        }
+        this.shortestPathNodes = [];
+        this.visitedNodes = [];
+
+        Object.keys(this.nodes).forEach(node => {
+            if(this.nodes[node].status === "visited") 
+            {
+                document.getElementById(this.nodes[node].id).className = "unvisited";
+                this.nodes[node].status = "unvisited";
+            }
+            this.nodes[node].previousNode = null;
+        });
 
         this.clearWalls();
     }
 
     clearPath() {
-        let len;
-        
-        len = this.visitedNodes.length;
-        for(let i = 0; i < len; i++)
-        {
-            let currentId = this.visitedNodes[this.visitedNodes.length -  1];
-            if(this.getNode(currentId).status !== "wall") document.getElementById(currentId).className = "unvisited";
-            this.visitedNodes.pop();
-        }
-        
-        len = this.shortestPathNodes.length;
-        for(let i = 0; i < len; i++)
-        {
-            let currentId = this.shortestPathNodes[this.shortestPathNodes.length - 1];
-            if(this.getNode(currentId).status !== "wall")  document.getElementById(currentId).className = "unvisited";
-            this.shortestPathNodes.pop();
-        }
+        this.shortestPathNodes = [];
+        this.visitedNodes = [];
 
         Object.keys(this.nodes).forEach(node => {
-            if(this.nodes[node].status === "visited") this.nodes[node].status = "unvisited";
+            if(this.nodes[node].status === "visited") 
+            {
+                document.getElementById(this.nodes[node].id).className = "unvisited";
+                this.nodes[node].status = "unvisited";
+            }
             this.nodes[node].previousNode = null;
         });
     }
@@ -241,9 +227,6 @@ class Grid {
     }
 
     instantAlgorithm() {
-        document.getElementById(this.source).className = "source";
-        document.getElementById(this.destination).className = "destination";
-
         if(this.algorithmName === "Astar")
             astar(this.source, this.destination, this);
         else if(this.algorithmName === "Dijkstra")
@@ -412,7 +395,11 @@ function astar (start, target, Grid) {
         let current = prioQueue.getMin();
         
         if(Grid.getNode(current).status === "destination") break;
-        if(current !== start) Grid.visitedNodes.push(current);
+        if(current !== start) 
+        {
+            Grid.getNode(current).status = "visited";
+            Grid.visitedNodes.push(current);
+        }
         
         let neighbours = Grid.getNeighbours(current);
         neighbours.forEach(next => {
@@ -441,7 +428,11 @@ function Dijkstra(Grid, start) {
         let current = prioQueue.getMin();
         
         if (Grid.getNode(current).status === "destination") break;
-        if(current !== start) Grid.visitedNodes.push(current);
+        if(current !== start) 
+        {
+            Grid.getNode(current).status = "visited";
+            Grid.visitedNodes.push(current);
+        }
         
         let neighbours = Grid.getNeighbours(current);
         neighbours.forEach(next => {
@@ -470,8 +461,10 @@ function dfs(Grid, start) {
         if (currentNode === Grid.destination) return;
 
         if(currentNode !== start)
+        {
             Grid.visitedNodes.push(currentNode);
-
+            Grid.getNode(currentNode).status = "visited";
+        }
         let neighbours = Grid.getNeighbours(currentNode);
         
         neighbours.forEach(neighbour => {
@@ -496,7 +489,10 @@ function bfs(Grid, start)
         if (currentNode === Grid.destination) return;
 
         if(currentNode !== start)
+        {
             Grid.visitedNodes.push(currentNode);
+            Grid.getNode(currentNode).status = "visited";
+        }
 
         let neighbours = Grid.getNeighbours(currentNode);
         
@@ -608,16 +604,27 @@ document.getElementById("bfs").addEventListener("click", () => {
 document.getElementById("startBtn").addEventListener("click", startVisualization);
 
 document.getElementById("clear_path").addEventListener("click", function() {
-    newGrid.clearPath();
-    newGrid.algoDone = false;
+    if(newGrid.buttonsOn)
+    {
+        newGrid.clearPath();
+        newGrid.algoDone = false;   
+    }
+
 });
 document.getElementById("clear_walls").addEventListener("click", function() {
-    newGrid.clearWalls();
-    newGrid.algoDone = false;
+    if(newGrid.buttonsOn)
+    {
+        newGrid.clearWalls();
+        newGrid.algoDone = false;
+    }
 });
 document.getElementById("reset_grid").addEventListener("click", function() {
-    newGrid.resetGrid();
-    newGrid.algoDone = false;
+    if(newGrid.buttonsOn)
+    {
+        newGrid.resetGrid();
+        newGrid.algoDone = false;   
+    }
+
 });
 
 function startVisualization () {

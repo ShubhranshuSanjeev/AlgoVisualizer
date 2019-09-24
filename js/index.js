@@ -226,7 +226,10 @@ class Grid {
         Object.keys(this.nodes).forEach(node => {
             if(this.nodes[node].status === "visited") 
             {
-                document.getElementById(this.nodes[node].id).className = "unvisited";
+                if(this.nodes[node].weight === 15)
+                    document.getElementById(this.nodes[node].id).className = "unvisited weight";
+                else
+                    document.getElementById(this.nodes[node].id).className = "unvisited";
                 this.nodes[node].status = "unvisited";
             }
             this.nodes[node].previousNode = null;
@@ -242,7 +245,10 @@ class Grid {
         Object.keys(this.nodes).forEach(node => {
             if(this.nodes[node].status === "visited") 
             {
-                document.getElementById(this.nodes[node].id).className = "unvisited";
+                if(this.nodes[node].weight === 15)
+                    document.getElementById(this.nodes[node].id).className = "unvisited weight";
+                else
+                    document.getElementById(this.nodes[node].id).className = "unvisited";
                 this.nodes[node].status = "unvisited";
             }
             this.nodes[node].previousNode = null;
@@ -689,14 +695,20 @@ function launchInstantAnimations (Grid) {
     for(let i = 0; i < len; i++)
     {
         let currentNodeID = Grid.visitedNodes[i];
-        document.getElementById(currentNodeID).className = "visitedInstant";
+        let ele = document.getElementById(currentNodeID);
+        if(Grid.getNode(currentNodeID).weight === 15) ele.className = "visitedInstant weightInstant";
+        else ele.className = "visitedInstant";
+        // document.getElementById(currentNodeID).className = "visitedInstant";
     }
 
     len = Grid.shortestPathNodes.length;
     for(let i = 0; i < len; i++)
     {
         let currentNodeID = Grid.shortestPathNodes[i];
-        document.getElementById(currentNodeID).className = "shortestPathNodeInstant";
+        let ele = document.getElementById(currentNodeID);
+        if(Grid.getNode(currentNodeID).weight === 15) ele.className = "shortestPathNodeInstant weightInstant";
+        else ele.className = "shortestPathNodeInstant";
+        // document.getElementById(currentNodeID).className = "shortestPathNodeInstant";
     }
 }
 

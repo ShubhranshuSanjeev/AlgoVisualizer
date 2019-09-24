@@ -23,7 +23,7 @@ header{
     display: flex;
     align-items: center;
     justify-content: space-around;
-    width:50%; 
+    width:40%; 
 }
 
 header h1 {
@@ -110,6 +110,13 @@ button:hover {
     background-size: contain;
 }
 
+.cell_weight {
+    background:url(./weight.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
 /* *************************************************************Grid *************************************************************************/
 .container {
     height: 80vh;
@@ -172,6 +179,14 @@ button:hover {
     border-bottom: 1px solid rgba(51, 153, 255, 0.8);
 }
 
+.weight {
+    animation: weightAnimation 1.2s ease-out forwards;
+    background:url(./weight.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}   
+
 .shortestPathNode {
     animation: shortestPathAnimation 0.6s ease-in forwards;
     border-right:  1px solid yellow;
@@ -213,6 +228,18 @@ button:hover {
     }
     100% {
         background-color: rgb(102, 0, 102);
+        transform: scale(1);
+    }
+}
+
+@keyframes weightAnimation {
+    0%{
+        transform: scale(0.3);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100%{
         transform: scale(1);
     }
 }

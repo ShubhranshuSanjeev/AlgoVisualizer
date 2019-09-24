@@ -11,6 +11,7 @@ class Grid {
         this.wallsToBuild = [];
         this.buttonsOn = false;
         this.mouseDown = false;
+        this.weightCheck = false;
         this.pressedNodeStatus = "normal";
         this.previouslySwitchedNode = null;
         this.previouslyPressedNodeStatus = null;
@@ -18,6 +19,8 @@ class Grid {
         this.algorithmName = null;
         this.buttonsOn = true;
         this.borderWalls = false;
+        this.landMarkNodes = [];
+        this.keydown = false;
     }
 
     intialise() {
@@ -68,11 +71,10 @@ class Grid {
                     if(this.buttonsOn)
                     {
                         grid.mouseDown = true;
-                        if (currentNode.status !== "source" && currentNode.status !== "destination") {
-                            currentElement.className = currentNode.status !== "wall" ? "wall" : "unvisited";
-                            currentNode.status = currentElement.className !== "wall" ? "unvisited" : "wall";
-                        }
                         grid.pressedNodeStatus = currentNode.status;
+                        grid.weightCheck = currentNode.weight === 15 ? true : false;
+                        if(currentNode.status !== "source" && currentNode.status !== "destination")
+                            grid.toggleWallsWeightsandUnvisitedNodes(currentNode);
                     }
                 };
 
@@ -87,6 +89,7 @@ class Grid {
                             grid.destination = currentID;
                         }
                         grid.pressedNodeStatus = "normal";
+                        grid.weightCheck = false;
                     }
                 };
 
@@ -109,12 +112,7 @@ class Grid {
                             }
                         }
                         else if (grid.mouseDown) {
-                            if (currentNode.status !== "source" && currentNode.status !== "destination") {
-                                if (this.pressedNodeStatus === "wall" || this.pressedNodeStatus === "unvisited") {
-                                    currentElement.className = grid.pressedNodeStatus;
-                                    currentNode.status = currentElement.className !== "wall" ? "unvisited" : "wall";
-                                }
-                            }
+                            grid.toggleWallsWeightsandUnvisitedNodes(currentNode);
                         }
                     }
                 };
@@ -130,6 +128,29 @@ class Grid {
         }
     }
 
+    toggleWallsWeightsandUnvisitedNodes(currentNode) {
+        let element = document.getElementById(currentNode.id);
+        let unweightedAlgorithms = ["Dfs", "Bfs"];
+        let nodesToBeUnchanged = ["source", "destination"];
+        if(!this.keydown)
+        {
+            if(!nodesToBeUnchanged.includes(currentNode.status))
+            {
+                element.className = this.pressedNodeStatus === "unvisited" || this.pressedNodeStatus === "visited" ? "wall" : "unvisited";
+                currentNode.status = element.className;
+                currentNode.weight = 0;
+            }
+        }
+        else if (this.keydown === 87 && !unweightedAlgorithms.includes(this.algorithmName))
+        {
+            if (!nodesToBeUnchanged.includes(currentNode.status)) {
+                element.className = !this.weightCheck ? "unvisited weight" : "unvisited";
+                currentNode.weight = element.className !== "unvisited weight" ? 0 : 15;
+                currentNode.status = "unvisited";
+            }
+        }
+    }
+
     changeTerminalNodes(currentNode) {
         let element = document.getElementById(currentNode.id), previousElement;
 
@@ -140,11 +161,16 @@ class Grid {
             if(this.previouslySwitchedNode)
             {
                 this.previouslySwitchedNode.status = this.previouslyPressedNodeStatus;
-                previousElement.className = this.previouslyPressedNodeStatus === "visited" ? "unvisited" : this.previouslyPressedNodeStatus;
+                previousElement.className = this.previouslySwitchedNodeWeight === 15 ? "unvisited weight" : this.previouslyPressedNodeStatus;
+                this.previouslySwitchedNode.weight = this.previouslySwitchedNodeWeight === 15 ? 15 : 0;
                 this.previouslySwitchedNode = null;
+                this.previouslySwitchedNodeWeight = currentNode.weight;
+
                 this.previouslyPressedNodeStatus = currentNode.status;
                 currentNode.status = this.pressedNodeStatus;
                 element.className = currentNode.status;
+                
+                currentNode.weight = 0;
             }
         }
 
@@ -261,6 +287,7 @@ var Node = function (id, status) {
     this.id = id;
     this.status = status;
     this.previousNode = null;
+    this.weight = 0;
 };
 
 /* *******************************************************************************Priority Queue********************************************************************** */
@@ -406,7 +433,7 @@ function astar (start, target, Grid) {
         
         let neighbours = Grid.getNeighbours(current);
         neighbours.forEach(next => {
-            let newCost = cost_so_far.get(current) + 1;
+            let newCost = cost_so_far.get(current) + 1 + Grid.getNode(next).weight;
 
             if(cost_so_far.has(next) === false || newCost < cost_so_far.get(next)) 
             {
@@ -439,7 +466,7 @@ function Dijkstra(Grid, start) {
         
         let neighbours = Grid.getNeighbours(current);
         neighbours.forEach(next => {
-            let newCost = cost_so_far.get(current) + 1;
+            let newCost = cost_so_far.get(current) + 1 + Grid.getNode(next).weight;
 
             if(cost_so_far.has(next) === false || newCost < cost_so_far.get(next)) 
             {
@@ -633,7 +660,8 @@ function launchAnimations (index, Grid) {
             }
             let currentNodeID = Grid.visitedNodes[index];
             let ele = document.getElementById(currentNodeID);
-            ele.className = "visited";
+            if(Grid.getNode(currentNodeID).weight === 15) ele.className = "visited weight";
+            else ele.className = "visited";
             drawVisited(index + 1);
         }, speed);
     }
@@ -646,8 +674,10 @@ function launchAnimations (index, Grid) {
                 Grid.buttonsOn = true;
                 return;
             }
-            let currentID = Grid.shortestPathNodes[index];
-            document.getElementById(currentID).className = "shortestPathNode";
+            let currentNodeID = Grid.shortestPathNodes[index];
+            let ele = document.getElementById(currentNodeID);
+            if(Grid.getNode(currentNodeID).weight === 15) ele.className = "shortestPathNode weight";
+            else ele.className = "shortestPathNode";
             drawShortestPath(index + 1);
         }, 40);
     }
@@ -747,6 +777,15 @@ document.getElementById("reset_grid").addEventListener("click", function() {
     }
 
 });
+
+window.onkeydown = (e) => {
+    newGrid.keydown = e.which || e.keyCode;
+}
+
+window.onkeyup = () => {
+    newGrid.keydown = false;
+    newGrid.mouseDown = false;
+}
 
 function startVisualization () {
     if(newGrid.buttonsOn)

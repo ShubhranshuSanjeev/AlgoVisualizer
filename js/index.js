@@ -21,6 +21,7 @@ class Grid {
         this.borderWalls = false;
         this.landMarkNodes = [];
         this.keydown = false;
+        this.defaultWeight = 15;
     }
 
     intialise() {
@@ -72,7 +73,7 @@ class Grid {
                     {
                         grid.mouseDown = true;
                         grid.pressedNodeStatus = currentNode.status;
-                        grid.weightCheck = currentNode.weight === 15 ? true : false;
+                        grid.weightCheck = currentNode.weight === this.defaultWeight ? true : false;
                         if(currentNode.status !== "source" && currentNode.status !== "destination")
                             grid.toggleWallsWeightsandUnvisitedNodes(currentNode);
                     }
@@ -134,7 +135,7 @@ class Grid {
         let nodesToBeUnchanged = ["source", "destination"];
         if(!this.keydown)
         {
-            if(!nodesToBeUnchanged.includes(currentNode.status))
+            if(!nodesToBeUnchanged.includes(currentNode.status) && currentNode.weight !== this.defaultWeight)
             {
                 element.className = this.pressedNodeStatus === "unvisited" || this.pressedNodeStatus === "visited" ? "wall" : "unvisited";
                 currentNode.status = element.className;
@@ -145,7 +146,7 @@ class Grid {
         {
             if (!nodesToBeUnchanged.includes(currentNode.status)) {
                 element.className = !this.weightCheck ? "unvisited weight" : "unvisited";
-                currentNode.weight = element.className !== "unvisited weight" ? 0 : 15;
+                currentNode.weight = element.className !== "unvisited weight" ? 0 : this.defaultWeight;
                 currentNode.status = "unvisited";
             }
         }
@@ -161,8 +162,8 @@ class Grid {
             if(this.previouslySwitchedNode)
             {
                 this.previouslySwitchedNode.status = this.previouslyPressedNodeStatus;
-                previousElement.className = this.previouslySwitchedNodeWeight === 15 ? "unvisited weight" : this.previouslyPressedNodeStatus;
-                this.previouslySwitchedNode.weight = this.previouslySwitchedNodeWeight === 15 ? 15 : 0;
+                previousElement.className = this.previouslySwitchedNodeWeight === this.defaultWeight ? "unvisited weight" : this.previouslyPressedNodeStatus;
+                this.previouslySwitchedNode.weight = this.previouslySwitchedNodeWeight === this.defaultWeight ? this.defaultWeight : 0;
                 this.previouslySwitchedNode = null;
                 this.previouslySwitchedNodeWeight = currentNode.weight;
 
@@ -224,15 +225,13 @@ class Grid {
         this.wallsToBuild = [];
 
         Object.keys(this.nodes).forEach(node => {
-            if(this.nodes[node].status === "visited") 
+            if(this.nodes[node].status !=="source" && this.nodes[node].status !=="destination")
             {
-                if(this.nodes[node].weight === 15)
-                    document.getElementById(this.nodes[node].id).className = "unvisited weight";
-                else
-                    document.getElementById(this.nodes[node].id).className = "unvisited";
+                document.getElementById(this.nodes[node].id).className = "unvisited";
                 this.nodes[node].status = "unvisited";
+                this.nodes[node].weight = 0;
+                this.nodes[node].previousNode = null;
             }
-            this.nodes[node].previousNode = null;
         });
 
         this.clearWalls();
@@ -245,7 +244,7 @@ class Grid {
         Object.keys(this.nodes).forEach(node => {
             if(this.nodes[node].status === "visited") 
             {
-                if(this.nodes[node].weight === 15)
+                if(this.nodes[node].weight === this.defaultWeight)
                     document.getElementById(this.nodes[node].id).className = "unvisited weight";
                 else
                     document.getElementById(this.nodes[node].id).className = "unvisited";
@@ -543,7 +542,7 @@ function bfs(Grid, start)
 }
 /* ***************************************************************************Maze**************************************************************************** */
 
-function recursiveDivisionMaze (Grid, nodes, rowStart, rowEnd, colStart, colEnd, orientation, borderWalls) {
+function recursiveDivisionMaze (Grid, nodes, rowStart, rowEnd, colStart, colEnd, orientation, borderWalls, type) {
     if (rowEnd < rowStart || colEnd < colStart) return;
 
     if(!borderWalls)
@@ -556,8 +555,14 @@ function recursiveDivisionMaze (Grid, nodes, rowStart, rowEnd, colStart, colEnd,
 
                 if(r === 0 || c === 0 || r === Grid.height-1 || c === Grid.width-1)
                 {
-                    Grid.wallsToBuild.push(node); 
-                    nodes[node].status = "wall";
+                    Grid.wallsToBuild.push(node);
+                    if(type === "weight")
+                    {
+                        nodes[node].status = "unvisited";
+                        nodes[node].weight = Grid.defaultWeight;
+                    } 
+                    else
+                        nodes[node].status = "wall";
                 }
             }
         });
@@ -587,20 +592,26 @@ function recursiveDivisionMaze (Grid, nodes, rowStart, rowEnd, colStart, colEnd,
             if (r === wallRow && c !== wallCol && c >= colStart - 1 && c <= colEnd + 1) {
                 if (nodes[node].status !== "source" && nodes[node].status !== "destination") {
                     Grid.wallsToBuild.push(node);
-                    nodes[node].status = "wall";
+                    if(type === "weight")
+                    {
+                        nodes[node].status = "unvisited";
+                        nodes[node].weight = Grid.defaultWeight;
+                    } 
+                    else
+                        nodes[node].status = "wall";
                 }
             } 
         });
 
         if (wallRow - 2 - rowStart > colEnd - colStart) 
-            recursiveDivisionMaze(Grid, nodes, rowStart, wallRow - 2, colStart, colEnd, orientation, borderWalls);
+            recursiveDivisionMaze(Grid, nodes, rowStart, wallRow - 2, colStart, colEnd, orientation, borderWalls, type);
         else 
-            recursiveDivisionMaze(Grid, nodes, rowStart, wallRow - 2, colStart, colEnd, "vertical", borderWalls);
+            recursiveDivisionMaze(Grid, nodes, rowStart, wallRow - 2, colStart, colEnd, "vertical", borderWalls, type);
 
         if (rowEnd - (wallRow + 2) > colEnd - colStart) 
-            recursiveDivisionMaze(Grid, nodes, wallRow + 2, rowEnd, colStart, colEnd, orientation, borderWalls);
+            recursiveDivisionMaze(Grid, nodes, wallRow + 2, rowEnd, colStart, colEnd, orientation, borderWalls, type);
         else 
-            recursiveDivisionMaze(Grid, nodes, wallRow + 2, rowEnd, colStart, colEnd, "vertical", borderWalls);
+            recursiveDivisionMaze(Grid, nodes, wallRow + 2, rowEnd, colStart, colEnd, "vertical", borderWalls, type);
     } 
     else 
     {
@@ -623,19 +634,25 @@ function recursiveDivisionMaze (Grid, nodes, rowStart, rowEnd, colStart, colEnd,
             if (c === wallCol && r !== wallRow && r >= rowStart - 1 && r <= rowEnd + 1) {
                 if (nodes[node].status !== "source" && nodes[node].status !== "destination") {
                     Grid.wallsToBuild.push(node);
-                    nodes[node].status = "wall";
+                    if(type === "weight")
+                    {
+                        nodes[node].status = "unvisited";
+                        nodes[node].weight = Grid.defaultWeight;
+                    } 
+                    else
+                        nodes[node].status = "wall";
                 }  
             } 
         });
         if (rowEnd - rowStart > wallCol - 2 - colStart)
-            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, colStart, wallCol - 2, "horizontal", borderWalls);
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, colStart, wallCol - 2, "horizontal", borderWalls, type);
         else
-            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, colStart, wallCol - 2, orientation, borderWalls);
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, colStart, wallCol - 2, orientation, borderWalls, type);
 
         if (rowEnd - rowStart > colEnd - (wallCol + 2))
-            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, wallCol + 2, colEnd, "horizontal", borderWalls);
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, wallCol + 2, colEnd, "horizontal", borderWalls, type);
         else
-            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, wallCol + 2, colEnd, orientation, borderWalls);
+            recursiveDivisionMaze(Grid, nodes, rowStart, rowEnd, wallCol + 2, colEnd, orientation, borderWalls, type);
     }
 }
 
@@ -666,7 +683,7 @@ function launchAnimations (index, Grid) {
             }
             let currentNodeID = Grid.visitedNodes[index];
             let ele = document.getElementById(currentNodeID);
-            if(Grid.getNode(currentNodeID).weight === 15) ele.className = "visited weight";
+            if(Grid.getNode(currentNodeID).weight === Grid.defaultWeight) ele.className = "visited weight";
             else ele.className = "visited";
             drawVisited(index + 1);
         }, speed);
@@ -682,7 +699,7 @@ function launchAnimations (index, Grid) {
             }
             let currentNodeID = Grid.shortestPathNodes[index];
             let ele = document.getElementById(currentNodeID);
-            if(Grid.getNode(currentNodeID).weight === 15) ele.className = "shortestPathNode weight";
+            if(Grid.getNode(currentNodeID).weight === Grid.defaultWeight) ele.className = "shortestPathNode weight";
             else ele.className = "shortestPathNode";
             drawShortestPath(index + 1);
         }, 40);
@@ -696,9 +713,8 @@ function launchInstantAnimations (Grid) {
     {
         let currentNodeID = Grid.visitedNodes[i];
         let ele = document.getElementById(currentNodeID);
-        if(Grid.getNode(currentNodeID).weight === 15) ele.className = "visitedInstant weightInstant";
+        if(Grid.getNode(currentNodeID).weight === Grid.defaultWeight) ele.className = "visitedInstant weightInstant";
         else ele.className = "visitedInstant";
-        // document.getElementById(currentNodeID).className = "visitedInstant";
     }
 
     len = Grid.shortestPathNodes.length;
@@ -706,9 +722,8 @@ function launchInstantAnimations (Grid) {
     {
         let currentNodeID = Grid.shortestPathNodes[i];
         let ele = document.getElementById(currentNodeID);
-        if(Grid.getNode(currentNodeID).weight === 15) ele.className = "shortestPathNodeInstant weightInstant";
+        if(Grid.getNode(currentNodeID).weight === Grid.defaultWeight) ele.className = "shortestPathNodeInstant weightInstant";
         else ele.className = "shortestPathNodeInstant";
-        // document.getElementById(currentNodeID).className = "shortestPathNodeInstant";
     }
 }
 
@@ -719,6 +734,7 @@ function drawMaze(Grid) {
         setTimeout(function() {
             if(index === len) return;
             if(Grid.nodes[Grid.wallsToBuild[index]].status === "wall") document.getElementById(Grid.wallsToBuild[index]).className = "wall";
+            else if (Grid.nodes[Grid.wallsToBuild[index]].status === "unvisited") document.getElementById(Grid.wallsToBuild[index]).className = "unvisited weight";
             timeout(index + 1);
         }, 0);
     }
@@ -757,11 +773,20 @@ document.getElementById("bfs").addEventListener("click", () => {
 
 document.getElementById("startBtn").addEventListener("click", startVisualization);
 
-document.getElementById("create_maze").addEventListener("click", () => {
+document.getElementById("wall_maze").addEventListener("click", () => {
     if(newGrid.buttonsOn)
     {
         newGrid.resetGrid();
-        recursiveDivisionMaze(newGrid, newGrid.nodes, 2, newGrid.height-3, 2, newGrid.width-3, "horizontal", newGrid.borderWalls);
+        recursiveDivisionMaze(newGrid, newGrid.nodes, 2, newGrid.height-3, 2, newGrid.width-3, "horizontal", newGrid.borderWalls, "wall");
+        drawMaze(newGrid);
+    }
+});
+
+document.getElementById("weight_maze").addEventListener("click", () => {
+    if(newGrid.buttonsOn)
+    {
+        newGrid.resetGrid();
+        recursiveDivisionMaze(newGrid, newGrid.nodes, 2, newGrid.height-3, 2, newGrid.width-3, "horizontal", newGrid.borderWalls, "weight");
         drawMaze(newGrid);
     }
 });
@@ -789,6 +814,10 @@ document.getElementById("reset_grid").addEventListener("click", function() {
     }
 
 });
+
+// document.getElementById("submitWeight").addEventListener("click", function() {
+//     newGrid.defaultWeight = document.getElementById("weight").value;
+// });
 
 window.onkeydown = (e) => {
     newGrid.keydown = e.which || e.keyCode;

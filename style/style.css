@@ -45,7 +45,7 @@ button{
     color:#fff;
 }
 
-button:hover {
+header button:hover {
     color: #16a085;
 }
 
@@ -75,7 +75,6 @@ button:hover {
 .info .cell {
     width: 23px;
     height: 23px;
-    /* background-color: black; */
     margin-right: 10px;
 } 
 
@@ -117,9 +116,10 @@ button:hover {
     background-size: contain;
 }
 
+
 /* *************************************************************Grid *************************************************************************/
 .container {
-    height: 80vh;
+    height: 83vh;
     margin: 5px;
 }
 
@@ -128,7 +128,7 @@ button:hover {
 }
 
 .row {
-    height:4.167%;
+    height:4%;
     width: 100%;
     display: flex;
     margin: 0;
@@ -332,7 +332,6 @@ ul li {
 
 .dropdown-content ul li:hover {
     background-color: #ddd;
-    /* border-radius: 5px; */
 }
 
 .show {
